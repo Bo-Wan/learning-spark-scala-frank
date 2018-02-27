@@ -36,7 +36,7 @@ object MostPopularSuperhero {
     // Build up a hero ID -> name RDD
     val names = sc.textFile("../sample-data/marvel-names.txt")
     val namesRdd = names.flatMap(parseNames)
-    
+
     // Load up the superhero co-apperarance data
     val lines = sc.textFile("../sample-data/marvel-graph.txt")
     
@@ -49,17 +49,17 @@ object MostPopularSuperhero {
     // Flip it to # of connections, hero ID
     val flipped = totalFriendsByCharacter.map( x => (x._2, x._1) )
     
-    
-    
     // Find the max # of connections
     val mostPopular = flipped.max()
     
-    println(mostPopular)
     // Look up the name (lookup returns an array of results, so we need to access the first result with (0)).
     val mostPopularName = namesRdd.lookup(mostPopular._2)(0)
     
     // Print out our answer!
     println(s"$mostPopularName is the most popular superhero with ${mostPopular._1} co-appearances.") 
+
+    flipped.sortByKey(false).take(10).map( x => (x._1, namesRdd.lookup(x._2)(0)) ).foreach(println)
+    flipped.sortByKey(true).take(10).map( x => (x._1, namesRdd.lookup(x._2)(0)) ).foreach(println)
+
   }
-  
 }

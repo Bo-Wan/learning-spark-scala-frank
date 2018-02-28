@@ -171,7 +171,7 @@ object DegreesOfSeparation {
     hitCounter = Some(sc.longAccumulator("Hit Counter"))
     
     var iterationRdd = createStartingRdd(sc)
-    
+        
     var iteration:Int = 0
     for (iteration <- 1 to 10) {
       println("Running BFS Iteration# " + iteration)

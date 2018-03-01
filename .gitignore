@@ -1,8 +1,15 @@
+# Eclipse settings
 .DS_Store
 .cache-main
 .classpath
 .project
 .settings/
 
+# SBT build files
+sbt/project/project/target/
+sbt/project/target/
+sbt/target/
+
+# Scala classes and logs
 *.class
 *.log

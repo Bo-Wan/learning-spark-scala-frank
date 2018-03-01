@@ -21,7 +21,7 @@ object MovieSimilarities {
     // Create a Map of Ints to Strings, and populate it from u.item.
     var movieNames:Map[Int, String] = Map()
     
-    val lines = Source.fromFile("../sample-data/ml-100k/u.item").getLines()
+    val lines = Source.fromFile("./data/ml-100k/u.item").getLines()
 //     val lines = Source.fromFile("../big-data/ml-100k/u.item").getLines()
      for (line <- lines) {
        var fields = line.split('|')
@@ -99,7 +99,7 @@ object MovieSimilarities {
     println("\nLoading movie names...")
     val nameDict = loadMovieNames()
     
-    val data = sc.textFile("../sample-data/ml-100k/u.data")
+    val data = sc.textFile("./data/ml-100k/u.data")
 //    val data = sc.textFile("./big-data/ml-100k/u.data")
 
     
@@ -121,7 +121,11 @@ object MovieSimilarities {
     // We now have (movie1, movie2) => (rating1, rating2)
     // Now collect all ratings for each movie pair and compute similarity
     val moviePairRatings = moviePairs.groupByKey()
-
+    println("start")
+    moviePairs.take(10).foreach(println)
+    moviePairRatings.take(10).foreach(println)
+    println("end")
+    
     // We now have (movie1, movie2) = > (rating1, rating2), (rating1, rating2) ...
     // Can now compute similarities.
     val moviePairSimilarities = moviePairRatings.mapValues(computeCosineSimilarity).cache()

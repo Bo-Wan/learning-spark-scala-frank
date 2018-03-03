@@ -1,20 +1,29 @@
-package main.scala.com.bowan.spark
+package com.bowan.spark
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
-import scala.math.min
+import scala.math.max
 
 /** Find the minimum temperature by weather station */
-object MinTemperatures {
+object MaxPrecipitation {
   
   def parseLine(line:String)= {
     val fields = line.split(",")
     val stationID = fields(0)
+    val date = fields(1)
     val entryType = fields(2)
-    val temperature = fields(3).toFloat * 0.1f * (9.0f / 5.0f) + 32.0f
-    (stationID, entryType, temperature)
+    //val prcp = fields(3).toFloat * 0.1f * (9.0f / 5.0f) + 32.0f
+    val prcp = fields(3).toFloat
+    (stationID, (date, entryType, prcp))
   }
+  
+  def onlyStation(line:String)= {
+    val fields = line.split(",")
+    val stationID = fields(0)
+    (stationID)
+  }
+    
     /** Our main function where the action happens */
   def main(args: Array[String]) {
    
@@ -31,22 +40,33 @@ object MinTemperatures {
     val parsedLines = lines.map(parseLine)
     
     // Filter out all but TMIN entries
-    val minTemps = parsedLines.filter(x => x._2 == "TMIN")
+    val prcps = parsedLines.filter(x => x._2._2 == "PRCP")
     
-    // Convert to (stationID, temperature)
-    val stationTemps = minTemps.map(x => (x._1, x._3.toFloat))
+    // Convert to (stationID, prcp)
+    val stationPrcp = prcps.map(x => (x._1, (x._2._1, x._2._3)))
+ 
+    //stationPrcp.take(10).foreach(println)
     
+    
+    val checkStations = stationPrcp.map((x => (x._1)))
+    checkStations.distinct.collect().foreach(println)
+    
+     
     // Reduce by stationID retaining the minimum temperature found
-    val minTempsByStation = stationTemps.reduceByKey( (x,y) => min(x,y))
+    val maxP = stationPrcp.reduceByKey((x, y) => if (x._2 > y._2) x else y)
     
+    maxP.take(10).foreach(println)
+    
+ 
     // Collect, format, and print the results
-    val results = minTempsByStation.collect()
+    val results = maxP.collect()
     
     for (result <- results.sorted) {
        val station = result._1
-       val temp = result._2
-       val formattedTemp = f"$temp%.2f F"
-       println(s"$station minimum temperature: $formattedTemp") 
+       val date = result._2._1
+       val prcp = result._2._2
+       // = f"$temp%.2f F"
+       println(s"Station $station max prcp is $prcp which occured on date $date") 
     }
       
   }

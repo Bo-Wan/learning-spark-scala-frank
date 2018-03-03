@@ -1,11 +1,11 @@
-package main.scala.com.bowan.spark
+package com.bowan.spark
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.spark.sql._
 import org.apache.log4j._
-    
-object DataFrames {
+
+object SparkSQL {
   
   case class Person(ID:Int, name:String, age:Int, numFriends:Int)
   
@@ -30,33 +30,31 @@ object DataFrames {
 //      .config("spark.sql.warehouse.dir", "file:///C:/temp") // Necessary to work around a Windows bug in Spark 2.0.0; omit if you're not on Windows.
       .getOrCreate()
     
-    // Convert our csv file to a DataSet, using our Person case
-    // class to infer the schema.
-    import spark.implicits._
     val lines = spark.sparkContext.textFile("./data/fakefriends.csv")
-    val people = lines.map(mapper).toDS().cache()
+//    lines.take(10).foreach(println);
     
-    // There are lots of other ways to make a DataFrame.
-    // For example, spark.read.json("json file path")
-    // or sqlContext.table("Hive table name")
+    val people = lines.map(mapper)
+//    people.take(10).foreach(println);
     
-    println("Here is our inferred schema:")
-    people.printSchema()
+    // Infer the schema, and register the DataSet as a table.
+    import spark.implicits._
+    val schemaPeople = people.toDS
     
-    println("Let's select the name column:")
-    people.select("name").show()
+//    println("Showing schemaPeople..")
+    schemaPeople.show()
+//    println("done.")
     
-    println("Filter out anyone over 21:")
-    people.filter(people("age") < 21).show()
-   
-    println("Group by age:")
-    people.groupBy("age").count().show()
+    schemaPeople.printSchema()
     
-    println("Make everyone 10 years older:")
-    people.select(people("name"), people("age") + 10).show()
+    // Name the table "people"
+    schemaPeople.createOrReplaceTempView("people")
     
-    println("finanlly")
-    people.filter(people("age") <= 19 && people("age") >= 13).collect().foreach(println)
+    // SQL can be run over DataFrames that have been registered as a table
+    val teenagers = spark.sql("SELECT * FROM people WHERE age >= 13 AND age <= 19")
+    
+    val results = teenagers.collect()
+    
+    results.foreach(println)
     
     spark.stop()
   }

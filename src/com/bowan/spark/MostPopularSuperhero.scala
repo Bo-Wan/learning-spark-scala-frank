@@ -1,4 +1,4 @@
-package main.scala.com.bowan.spark
+package com.bowan.spark
 
 
 import org.apache.spark._

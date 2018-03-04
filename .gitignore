@@ -1,4 +1,4 @@
-# Credentials
+# Credential
 data/twitter.txt
 
 # Eclipse settings
@@ -17,3 +17,4 @@ sbt/target/
 *.class
 *.log
 /bin/
+

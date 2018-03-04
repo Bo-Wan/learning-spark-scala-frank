@@ -71,7 +71,7 @@ object PopularHashtags {
     
     // Set a checkpoint directory, and kick it all off
     // I could watch this all day!
-    ssc.checkpoint("/Users/bowan/Desktop/")
+    ssc.checkpoint("/Users/bowan/Desktop/twitter-streaming")
     ssc.start()
     ssc.awaitTermination()
   }  

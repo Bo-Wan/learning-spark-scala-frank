@@ -1,3 +1,6 @@
+# Credentials
+data/twitter.txt
+
 # Eclipse settings
 .DS_Store
 .cache-main
@@ -13,3 +16,4 @@ sbt/target/
 # Scala classes and logs
 *.class
 *.log
+/bin/
